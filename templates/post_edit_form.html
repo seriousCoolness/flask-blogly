@@ -12,6 +12,20 @@
             <label for="post_content">Text:</label>
             <textarea cols="80" rows="7" required="true" name="post_content" id="post_content" value="{{post.content}}"></textarea>
             <br>
+            <label for="tags">Tags: </label>
+            <ul id="tags">
+                {% for tag in all_tags %}
+                    <li>
+                        <label for="{{tag.name}}">{{tag.name}} - </label>
+                        {% if tag in post.tags %}
+                            <input type="checkbox" id="{{tag.name}}" name="tags" value="{{tag.id}}" checked>
+                        {% else %}
+                            <input type="checkbox" id="{{tag.name}}" name="tags" value="{{tag.id}}">
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+            <br>
             <button type="submit">Edit</button>
         </form>
     </span>

@@ -19,4 +19,12 @@
         <button formaction="/posts/{{post.id}}/delete" formmethod="post">Delete</button>
     </form>
 </span>
+
+<br>
+
+<ul>
+    {% for tag in post.tags %}
+        <li><a href="/tags/{{tag.id}}">{{tag.name}}</a></li>
+    {% endfor %}
+</ul>
 {% endblock %}

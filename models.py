@@ -49,4 +49,31 @@ class Posts(db.Model):
     
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    author = db.relationship('Users', backref='posts')
+    author = db.relationship('Users', backref='posts', cascade="all,delete")
+
+
+class Tags(db.Model):
+    """Tags for posts"""
+
+    __tablename__ = 'tags'
+
+    id = db.Column(db.Integer,
+                   primary_key=True,
+                   autoincrement=True)
+    
+    name = db.Column(db.String(30),
+                     unique=True,
+                     nullable=False)
+    
+    posts = db.relationship('Posts', secondary='post_tags', backref='tags', cascade="all,delete")
+
+
+class PostTags(db.Model):
+    """Posts that are associated with tags and vice-versa."""
+
+    __tablename__ = 'post_tags'
+
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), primary_key=True)
+
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), primary_key=True)
+
