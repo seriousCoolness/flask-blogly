@@ -1,6 +1,6 @@
 """Blogly application."""
 from flask import Flask, request, redirect, render_template, flash, get_flashed_messages, session
-from models import db, Users, connect_db
+from models import db, Users, Posts, connect_db
 from flask_debugtoolbar import DebugToolbarExtension
 
 app = Flask(__name__)
@@ -30,7 +30,9 @@ def home_page():
 @app.route("/users/<int:id>")
 def user_page(id):
     """Displays the user's info."""
-    return render_template('user.html', user=Users.query.get_or_404(id))
+    page_user = Users.query.get_or_404(id)
+    authored_posts = page_user.posts
+    return render_template('user.html', user=page_user, posts=authored_posts)
 
 
 @app.route("/users/new", methods=["GET"])
@@ -95,7 +97,7 @@ def edit_user_submit(id):
     last_name = request.form.get('last_name') if request.form.get('last_name') else ''
     image_url = request.form.get('image_url') if request.form.get('image_url') else ''
 
-    user=Users.query.get(id)
+    user=Users.query.get_or_404(id)
 
     if len(first_name) <= 30 and len(first_name) > 0:
         user.first_name = first_name
@@ -140,3 +142,68 @@ def delete_user(id):
     Users.query.filter_by(id=id).delete()
     db.session.commit()
     return redirect('/')
+
+@app.route('/posts/<int:id>')
+def post_page(id):
+    """Shows a specific post."""
+
+    selected_post = Posts.query.get_or_404(id)
+    return render_template('post.html', post=selected_post, author=selected_post.author)
+
+@app.route('/users/<int:user_id>/posts/new', methods=["GET"])
+def new_post_form(user_id):
+    """Form for submitting new post."""
+    
+    return render_template('post_new_form.html', id=user_id)
+
+@app.route('/users/<int:user_id>/posts/new', methods=["POST"])
+def new_post_submit(user_id):
+    """Submits new post to database."""
+    try:
+        
+        post=Posts(title=request.form.get('post_title'), content=request.form.get('post_content'), user_id=user_id)
+    
+        db.session.add(post)
+        db.session.commit()
+
+    except Exception as e:
+        flash(e)
+        return redirect(f'/users/{user_id}/posts/new')
+    else:
+        return redirect(f'/posts/{post.id}')
+    
+@app.route('/posts/<int:id>/edit', methods=["GET"])
+def edit_post_form(id):
+    """Form for editing post."""
+    post=Posts.query.get_or_404(id)
+
+    return render_template('post_edit_form.html', post=post)
+
+@app.route('/posts/<int:id>/edit', methods=["POST"])
+def edit_post_submit(id):
+    """Edits post info in database."""
+    try:
+        title=request.form.get('post_title')
+        content=request.form.get('post_content')
+
+        post=Posts.query.get_or_404(id)
+
+        post.title = title
+        post.content = content
+    
+        db.session.add(post)
+        db.session.commit()
+
+    except Exception as e:
+        flash(e)
+        return redirect(f'/posts/{id}/edit')
+    else:
+        return redirect(f'/posts/{id}')
+    
+@app.route('/posts/<int:id>/delete', methods=["POST"])
+def delete_post(id):
+
+    Posts.query.filter_by(id=id).delete()
+    db.session.commit()
+
+    return redirect('/users')

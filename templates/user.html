@@ -5,10 +5,21 @@
 {% block content %}
     <img src="{{user.image_url}}">
     <span>
+        <div>
             <h1>{{user.first_name}} {{user.last_name}}</h1>
             <form>
                 <button formaction="/users/edit/{{user.id}}" formmethod="get">Edit</button>
                 <button formaction="/users/delete/{{user.id}}" formmethod="post">Delete</button>
             </form>
-        </span>
+        </div>
+        <div>
+            <h3>Posts:</h3>
+            <ul>
+                {% for post in posts %}
+                    <li><a href="/posts/{{post.id}}">{{post.title}}</a></li>
+                {% endfor %}
+            </ul>
+            <form><button formaction="/users/{{user.id}}/posts/new" method="get">Create new post</button></form>
+        </div>
+    </span>
 {% endblock %}

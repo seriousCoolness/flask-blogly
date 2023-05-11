@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}{{post.title}}{% endblock %}
+
+{% block content %}
+<span>
+    <table>
+        <tr><td><h1>{{post.title}}</h1></td><td>{{post.created_at}}</td></tr>
+        <tr><td>By <a href="/users/{{post.user_id}}">{{author.first_name}} {{post.author.last_name}}</a></td></tr>
+    </table>
+    <p>{{post.content}}</p>
+</span>
+
+<br>
+
+<span>
+    <form>
+        <button formaction="/posts/{{post.id}}/edit" formmethod="get">Edit</button>
+        <button formaction="/posts/{{post.id}}/delete" formmethod="post">Delete</button>
+    </form>
+</span>
+{% endblock %}
